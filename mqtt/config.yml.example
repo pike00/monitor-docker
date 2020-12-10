@@ -1,0 +1,6 @@
+connection:
+  uri: <uri>
+  port: <port>
+
+  username: <username>
+  password: <password>

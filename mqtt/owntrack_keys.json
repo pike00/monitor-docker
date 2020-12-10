@@ -1,0 +1,39 @@
+[
+    {"mqtt_key": "acc", "description": "Accuracy of the reported location in meters without unit"
+    },
+    {"mqtt_key": "alt", "description": "Altitude measured above sea level"
+    },
+    {"mqtt_key": "batt", "description": "Device battery level"
+    },
+    {"mqtt_key": "bs", "description": "Battery Status 0=unknown,1=unplugged,2=charging,3=full"
+    },
+    {"mqtt_key": "cog", "description": "Course over ground"
+    },
+    {"mqtt_key": "lat", "description": "Latitude"
+    },
+    {"mqtt_key": "lon", "description": "Longitude"
+    },
+    {"mqtt_key": "rad", "description": "Radius around the region when entering/leaving"
+    },
+    {"mqtt_key": "t", "description": "Trigger for the location report"
+    },
+    {"mqtt_key": "tid", "description": "Tracker ID used to display the initials of a user required for http mode"
+    },
+    {"mqtt_key": "tst", "description": "UNIX epoch timestamp in seconds of the location fix"
+    },
+    {"mqtt_key": "vac", "description": "Vertical accuracy of the alt element"
+    },
+    {"mqtt_key": "vel", "description": "Velocity"
+    },
+    {"mqtt_key": "p", "description": "Barometric pressure"
+    },
+    {"mqtt_key": "conn","description": "Internet connectivity status (route to host) when the message is created"
+    },
+    {"mqtt_key": "inregions",
+        "description": "A list of regions the device is currently in (e.g. ['Home','Garage']). Might be empty."
+    },
+    {"mqtt_key": "SSID", "description": "Ynique name of the WLAN."
+    },
+    {"mqtt_key": "BSSID", "description": "If available, identifies the access point."
+    }
+]
