@@ -3,6 +3,12 @@ import json
 from prometheus_client import start_http_server, Gauge
 import logging
 import yaml
+import os
+import pathlib
+
+
+os.chdir(pathlib.Path(__file__).parent.absolute())
+print(os.getcwd())
 
 PORT = 9105
 
@@ -10,7 +16,7 @@ PORT = 9105
 metrics = {}
 
 owntracks_keys = None
-with open("mqtt/owntrack_keys.json") as keys_file:
+with open("owntrack_keys.json") as keys_file:
     owntracks_keys = json.load(keys_file)
 
 # Generates key of the form owntracks_device/id_mqttkey
@@ -60,7 +66,7 @@ def on_message(client, userdata, msg):
 if __name__ == '__main__':
 
     config = None
-    with open("mqtt/config.yml") as config_file:
+    with open("config.yml") as config_file:
         config = yaml.load(config_file, Loader=yaml.SafeLoader)
 
     # Start up the server to expose the metrics.
