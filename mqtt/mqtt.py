@@ -6,11 +6,10 @@ import yaml
 
 PORT = 9105
 
-
 metrics = {}
 
 owntracks_keys = None
-with open("mqtt/owntrack_keys.json") as keys_file:
+with open("owntrack_keys.json") as keys_file:
     owntracks_keys = json.load(keys_file)
 
 # Generates key of the form owntracks_device/id_mqttkey
@@ -60,7 +59,7 @@ def on_message(client, userdata, msg):
 if __name__ == '__main__':
 
     config = None
-    with open("mqtt/config.yml") as config_file:
+    with open("config.yml") as config_file:
         config = yaml.load(config_file, Loader=yaml.SafeLoader)
 
     # Start up the server to expose the metrics.
