@@ -1,0 +1,13 @@
+[Unit]
+Description=Exporter for Owntracks to Prometheus
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/home/prometheus_exporters/prometheus-exporters/mqtt
+ExecStart=/usr/bin/python3 /home/prometheus_exporters/prometheus-exporters/mqtt/mqtt.py
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
