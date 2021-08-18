@@ -1,0 +1,13 @@
+[Unit]
+Description=Exporter for Pihole to Prometheus
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/home/prometheus_exporters/prometheus-exporters/pihole
+ExecStart=/usr/bin/python3 /home/prometheus_exporters/prometheus-exporters/pihole/pihole.py
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

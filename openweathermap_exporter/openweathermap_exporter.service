@@ -1,0 +1,13 @@
+[Unit]
+Description=Exporter for OpenWeatherMap to Prometheus
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/home/prometheus_exporters/prometheus-exporters/openweathermap_exporter
+ExecStart=/usr/bin/python3 /home/prometheus_exporters/prometheus-exporters/openweathermap_exporter/openweathermap.py
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

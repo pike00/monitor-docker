@@ -129,6 +129,6 @@ if __name__ == '__main__':
 
             current_conditions_js = js['current']
 
-        time.sleep(5)
+        time.sleep(60*3) # Sleep 3 minutes
 
 

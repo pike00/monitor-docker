@@ -12,7 +12,6 @@ print(os.getcwd())
 
 PORT = 9101
 
-
 metrics = {}
 
 owntracks_keys = None
@@ -25,7 +24,7 @@ def get_prometheus_key(device_id, mqtt_key):
 
 
 def on_connect(client, userdata, flags, rc):
-    print("Connected with result code "+str(rc))
+    #print("Connected with result code "+str(rc))
 
     # Only subscribe to owntracks topics
     client.subscribe("owntracks/#")
