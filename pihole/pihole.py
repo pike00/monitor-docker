@@ -5,7 +5,7 @@ import logging
 
 logging.basicConfig(level=logging.INFO)
 
-PIHOLE_BASE_URL = "http://127.0.0.1:8001"
+PIHOLE_BASE_URL = "https://pihole.wpike.com"
 PORT = 9101
 # Gauge : pihole_key
 metrics = {}
@@ -49,7 +49,7 @@ if __name__ == '__main__':
         js = requests.get(f"{PIHOLE_BASE_URL}/admin/api.php?summary").json()
 
         for gauge, pihole_key in metrics.items():
-            value = int(float(js[pihole_key].replace(",", "")))
+            value = int(float(js[pihole_key]))
             gauge.set(value)
 
         time.sleep(1)
