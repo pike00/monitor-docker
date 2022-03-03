@@ -5,8 +5,8 @@ After=network.target
 [Service]
 Type=simple
 User=root
-WorkingDirectory=/home/prometheus_exporters/prometheus-exporters/wireguard
-ExecStart=/usr/bin/python3 /home/prometheus_exporters/prometheus-exporters/wireguard/wireguard.py
+WorkingDirectory=/home/monitor/prometheus-exporters/wireguard
+ExecStart=/usr/bin/python3 /home/monitor/prometheus-exporters/wireguard/wireguard.py
 Restart=on-failure
 
 [Install]

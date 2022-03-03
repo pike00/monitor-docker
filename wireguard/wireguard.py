@@ -1,4 +1,5 @@
 import sys
+import json
 from subprocess import Popen, PIPE
 
 from prometheus_client import start_http_server, Gauge, Info
@@ -10,6 +11,25 @@ import pandas as pd
 WG_PEER_COUNT = Gauge('wg_peer_count', 'Number of Wireguard Peers in config file')
 WG_PEER_COUNT_ACTIVE = Gauge('wg_peer_count_active', 'Number of Actuve Wireguard Peers')
 
+WG_DEVICE_HERMES = Info('wg_device_hermes',"Hermes Laptop Data")
+
+WG_DEVICE_WILL_LAPTOP = Info('wg_device_will_laptop',"Will's Laptop Data")
+WG_DEVICE_WILL_PHONE = Info('wg_device_will_iphone',"Will's iPhone Data")
+WG_DEVICE_WILL_IPAD = Info('wg_device_will_ipad',"Will's iPad Data")
+
+
+IP_MAP = {
+    "10.0.0.1": "Calypso",
+    "10.0.0.2": "Hermes",
+    "10.0.1.1": "laptop.will.device",
+    "10.0.1.2": "phone.will.device",
+    "10.0.1.3": "ipad.will.device",
+    "10.0.2.1": "laptop.aleisha.device",
+    "10.0.2.2": "ipad.aleisha.device",
+    "10.0.2.3": "phone.aleisha.device",
+}
+
+
 
 # WG_PEERS = Info('wg_peers', 'List of Peers in key:value pairs')
 
@@ -17,56 +37,41 @@ WG_PEER_COUNT_ACTIVE = Gauge('wg_peer_count_active', 'Number of Actuve Wireguard
 def parse_str(str):
     return int(float(str.replace(",", "")))
 
+def parse_wireguard(str):
+    lines = str.split("\n")
+    data = {}
+    interface = lines[0].split("\t")
+    peers_raw = lines[1:]
 
-def parse_wireguard(raw):
-    interface_dict = None
-    peers_array = []
+    wg0 = {}
+    wg0['private_key'] = interface[1]
+    wg0['public_key'] = interface[2]
+    wg0['listen_port'] = interface[3]
+    wg0['fwmark'] = interface[4]
 
-    raw = raw[:-1]
+    peers = []
 
-    groups = raw.split("\n\n")
-    for group in groups:
-        lines = group.split("\n")
-        lines = [line.strip() for line in lines]
-        lines = [line.split(": ") for line in lines]
-        cur_data = {line[0]: line[1] for line in lines}
-        if "interface" in cur_data:
-            interface_dict = cur_data
-        elif "peer" in cur_data:
+    for peer_raw in peers_raw:
+        if peer_raw == "": continue
+        peer_str = peer_raw.split("\t")
+        peer = {}
+        
+        peer['public_key'] = peer_str[1]
+        peer['preshared_key'] = peer_str[2]
+        peer['endpoint'] = peer_str[3]
+        peer['allowed_ips'] = peer_str[4]
+        peer['name'] = IP_MAP[peer['allowed_ips'].split("/")[0]]
+        peer['latest_handshake'] = peer_str[5]
+        peer['transfer_rx'] = peer_str[6]
+        peer['transfer_tx'] = peer_str[7]
+        peer['persistent_keepalive'] = peer_str[8]
 
-            # Checks to see if peer is active
-            total_seconds = 0
-            if 'latest handshake' in cur_data:
-                # Parsing time to seconds
-                time_unparsed = cur_data['latest handshake']
-                if 'Now' not in time_unparsed:
+        peers.append(peer)
+    
+    wg0['peers'] = peers
 
-                    time = time_unparsed.replace(" ago", "").split(", ")
-                    for time_part in time:
-                        value = time_part.split(" ")[0]
-                        time_unit = time_part.split(" ")[1]
-                        if 'second' in time_unit:
-                            multiplier = 1
-                        elif 'minute' in time_unit:
-                            multiplier = 60
-                        elif 'hour' in time_unit:
-                            multiplier = 3600
-                        else:
-                            multiplier = 3600
-
-                        total_seconds += int(value) * multiplier
-
-            # Only call a connection active if within the last 5 minutes
-            if 'latest handshake' in cur_data and total_seconds < 60 * 5:
-                cur_data["active"] = True
-            else:
-                cur_data["active"] = False
-            peers_array.append(cur_data)
-        else:
-            raise NotImplementedError()
-
-    peers_df = pd.DataFrame.from_dict(peers_array)
-    return interface_dict, peers_df
+    return wg0
+    
 
 
 if __name__ == '__main__':
@@ -75,13 +80,25 @@ if __name__ == '__main__':
 
     # Generate some requests.
     while True:
-        process = Popen(['wg'], stdout=PIPE, stderr=PIPE)
+        process = Popen(['wg','show','all','dump'], stdout=PIPE, stderr=PIPE)
         process.wait()
         stdout, stderr = process.communicate()
         stdout = stdout.decode("utf-8")
-        interface, peers = parse_wireguard(stdout)
+        
+        data = parse_wireguard(stdout)
+        peers = data['peers']
 
-        WG_PEER_COUNT.set(peers.shape[0])
-        WG_PEER_COUNT_ACTIVE.set(sum(peers['active'] == True))
+        WG_PEER_COUNT.set(len(peers))
 
-        time.sleep(5)
+        WG_DEVICE_HERMES.info(
+            list(filter(lambda x: x['name'] == 'Hermes', peers))[0])
+        WG_DEVICE_WILL_LAPTOP.info(
+            list(filter(lambda x: x['name'] == 'laptop.will.device', peers))[0])
+        WG_DEVICE_WILL_PHONE.info(
+            list(filter(lambda x: x['name'] == 'phone.will.device', peers))[0])
+        WG_DEVICE_WILL_IPAD.info(
+            list(filter(lambda x: x['name'] == 'ipad.will.device', peers))[0])
+            
+        # WG_PEER_COUNT_ACTIVE.set(sum(peers['active'] == True))
+
+        time.sleep(1)
