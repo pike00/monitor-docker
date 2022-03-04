@@ -1,0 +1,87 @@
+---
+version: "3.8"
+
+services:
+    # grafana:
+    #     image: grafana/grafana:latest-ubuntu
+    #     container_name: grafana
+    #     volumes:
+    #       - grafana:/var/lib/grafana
+    #     extra_hosts:
+    #       - "host.docker.internal:host-gateway"
+    #       - "influx.wpike.com:host-gateway"
+    #     restart: "no"
+    #     ports:
+    #       - 127.0.0.1:3000:3000
+
+  prometheus:
+      image: prom/prometheus
+      container_name: prometheus
+      volumes:
+        - 'prometheus_etc:/etc/prometheus'
+        - 'prometheus:/prometheus'
+      extra_hosts:
+        - "host.docker.internal:host-gateway"
+      restart: "no"
+      ports: 
+        - 127.0.0.1:9090:9090
+
+  influxdb:
+      container_name: influxdb
+      image: influxdb:latest
+      volumes:
+          - 'influxdb_var:/var/lib/influxdb2'
+          - 'influxdb_etc:/etc/influxdb2'
+      restart: unless-stopped
+      ports:
+        - 127.0.0.1:8086:8086
+      labels:
+        com.centurylinklabs.watchtower.enable: false
+
+
+  node-red:
+    container_name: nodered
+    image: pike00/nodered
+    build:
+      context: ./nodered
+    # ports:
+    #   - 127.0.0.1:1880:1880
+    environment:
+      - TZ=America/New_York
+    volumes:
+      - nodered:/data
+    restart: unless-stopped
+    network_mode: host
+    dns: 
+      - 127.0.0.1
+    labels:
+      com.centurylinklabs.watchtower.enable: false
+    # extra_hosts:
+    #   - host.docker.internal:host-gateway
+
+  watchtower:
+    image: containrrr/watchtower
+    container_name: watchtower
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: --interval 300
+
+volumes:
+  grafana:
+    name: grafana
+  prometheus_etc:
+    name: prometheus_etc
+  prometheus:
+    name: prometheus
+  influxdb_var:
+    name: influxdb_var
+  influxdb_etc:
+    name: influxdb_etc
+  nodered:
+    name: nodered
+
+
+networks:
+  default:
+    external:
+      name: pikenet
