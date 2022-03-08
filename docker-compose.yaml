@@ -22,7 +22,7 @@ services:
         - 'prometheus:/prometheus'
       extra_hosts:
         - "host.docker.internal:host-gateway"
-      restart: "no"
+      restart: unless-stopped
       ports: 
         - 127.0.0.1:9090:9090
 
@@ -65,6 +65,7 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     command: --interval 300
+    restart: unless-stopped
 
 volumes:
   grafana:
